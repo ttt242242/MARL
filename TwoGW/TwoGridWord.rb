@@ -16,21 +16,23 @@ include BasicTool
 # == TwoGridWorldのメインクラス
 #
 class TwoGridWorld
-  attr_accessor :field , :goal_info,:agents; #書き込み、参照可能
+  attr_accessor :field , :goal_info,:agents, :game_num; #書き込み、参照可能
   # attr_writer :test #書き込み可能
   # attr_reader :test #参照可能
 
   def initialize(conf = nil)
-    # conf = make_default_conf() if conf.nil? 
+    game_conf = make_default_conf() if conf.nil? 
     # @field = conf[:field] ;  #フィールドは行列で管理
     # @goal_info = conf[:goal_info] ; # ゴール情報arrayで管理　タイルidで指定
     @agents = initialize_agents() ; # エージェントの生成
+    @game_num = game_conf[:game_num] ;   #ゲームを何回するかを決定
   end
 
   def make_default_conf
-    # conf = {} ;
-    # conf[:field] = 0.01 ;
-   end
+    conf = {} ;
+    conf[:game_num] = 1 ;
+    return conf ;
+  end
 
   #
   # === エージェントの初期化
@@ -45,6 +47,9 @@ class TwoGridWorld
     return result_array ;
   end
 
+  #
+  # === エージェントの設定
+  #
   def make_default_agent_conf
     conf = {} ;
     conf[:e] = 0.01 ;
@@ -60,69 +65,82 @@ class TwoGridWorld
   end
 
   #
-  # === 実際にゲームを行うクラス
+  # === ゲームを行うメソッド
   #
   def run()
     # 指定した回数の繰り返し
-    10.times do  
-
-      while(!check_all_agent_goal())
-        dir = nil ;
-        @agents.each do |agent|
-          puts "#{agent.x}, #{agent.y}"
-          # エージェントが行動選択
-          #エージェントがまだゴールにたどり着いてなければ
-          if agent.is_goal == false
-            dir = agent.e_greedy  #各行動選択法 を用いて行動選択
-            agent.act(dir) ;
-          end
-          # 各エージェントは現在の状態から報酬を受け取り、期待報酬テーブルを更新
-        end 
-
+    @game_num.times do  
+      i = 0
+      while(!check_all_agent_goal())  #全エージェントがゴールするまで繰り返し
+        all_agent_act() ;   #全エージェントが行動選択
+        evaluate_all_agent() ;
         # エージェント同士がぶつかった場合  
-        if @agents[0].x == @agents[1].x && @agents[0].y == @agents[1].y
-          @agents.each do |agent|
-            if agent.is_goal == true
-            else
-              reward = -100
-              agent.update_q(reward) ;
-              agent.x = agent.previous_x ;
-              agent.y = agent.previous_y ;
-            end
-          end
-        else
-          @agents.each do |agent|
-
-            if agent.is_goal == true
-            else
-              if agent.x == agent.goal_x && agent.y == agent.goal_y #エージェントがゴール状態にたどり着いたら
-                reward = 100 ;
-                agent.is_goal = true ;
-              else 
-                reward = -1 ;
-              end
-              agent.update_q(reward) ;
-            end
-          end
-
-        end
-
       end
-        @agents.each do |agent|
-          agent.move_ini_pos ;
+      # 結果の出力 
+      # output_log() ;
+    end
+  end
+
+  #
+  # ===  全エージェントが行動選択
+  #
+  def all_agent_act
+    @agents.each do |agent|
+      #エージェントがまだゴールにたどり着いてなければ
+      if agent.is_goal == false
+        dir = agent.e_greedy  #各行動選択法 を用いて行動選択
+        agent.act(dir) ;
+      end
+    end 
+  end
+
+
+  #
+  # ===全エージェントの評価を行う
+  #
+  def evaluate_all_agent
+    # エージェント同士がぶつかった場合  
+    if @agents[0].is_collision_agent(@agents[1])
+      @agents.each do |agent|
+        if agent.is_goal == false
+          reward = -100
+          agent.update_q(reward) ;
+          agent.x = agent.previous_x ;
+          agent.y = agent.previous_y ;
         end
-
-
-        # 結果の出力 
-        # output_log() ;
+      end
+    else   #エージェント同士がぶつからなければ 
+      @agents.each do |agent|
+        if agent.is_goal == false
+          if agent.is_goal_pos #エージェントがゴール状態にたどり着いたら
+            reward = 100 ;
+            agent.is_goal = true ;
+          else 
+            reward = -1 ;
+          end
+          agent.update_q(reward) ;
+        end
+      end
     end
+  end
+
+  #
+  #
+  #
+  def all_agent_move_ini_pos
+    @agents.each do |agent|
+      agent.move_ini_pos ;
     end
 
+  end
+  #
+  # === 全エージェントがゴールに到達したかどうかを確認する
+  #
   def check_all_agent_goal
     @agents.each do |agent|
       return false  if agent.is_goal == false
     end
-      return true ;
+    return true ;
   end
 end
 

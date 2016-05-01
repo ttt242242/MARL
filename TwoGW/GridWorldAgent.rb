@@ -16,7 +16,7 @@ include BasicTool
 # バンディット問題用のエージェント
 #
 class GridWorldAgent < BaseAgent
-  attr_accessor :x, :y, :e, :t, :is_goal, :goal_x, :goal_y, :last_dir, :previous_x, :previous_y, :ini_x, :ini_y; #書き込み、参照可能
+  attr_accessor :x, :y, :e, :t, :is_goal, :goal_x, :goal_y, :last_dir, :previous_x, :previous_y; #書き込み、参照可能
   Max_x = 2 ;
   Min_x = 0 ;
   Max_y = 2 ;
@@ -29,25 +29,15 @@ class GridWorldAgent < BaseAgent
     @q_table = Hash.new ;
     @x = conf[:start_x] ; 
     @y = conf[:start_y] ; 
-    @ini_x = @x ;
-    @ini_y = @y ;
     create_q_table(@q_table) ;
     @e = conf[:e] ;
     @t = conf[:t] ;
     @is_goal = false ; #エージェントがゴールにいるかどうか
     @goal_x = conf[:goal_x] ; #エージェントがゴールにいるかどうか
     @goal_y = conf[:goal_y] ; #エージェントがゴールにいるかどうか
-    @previous_x = @x ;
-    @previous_y = @y ;
     @last_dir = nil ;
   end
   
-  def move_ini_pos
-    @x = @ini_x ;
-    @y = @ini_y ;
-    @is_goal = false ;
-  end
-
   def make_default_conf
     conf = {} ;
     conf[:e] = 0.01 ;
@@ -188,6 +178,28 @@ class GridWorldAgent < BaseAgent
       sum_policy_value += Math.exp(q.r/self.t) ;
     end 
     return sum_policy_value ;
+  end
+
+  #
+  # === その他のエージェントとの当たり判定
+  #
+  def is_collision_agent(agent)
+    if @x == agent.x && @y == agent.y
+      return true ;
+    else
+      return false ;
+    end
+  end
+
+  #
+  # === 現在ゴールにいるかどうかの判定
+  #
+  def is_goal_pos
+    if @x == @goal_x && @y == @goal_y 
+      return true ;
+    else
+      return false ;
+    end
   end
 end
 
