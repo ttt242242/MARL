@@ -40,8 +40,9 @@ class TwoGridWorld
   #
   def initialize_agents
     result_array = []  ;
-    agent1 = GridWorldAgent.new() ;
-    agent_conf = make_default_agent_conf() ;
+    agent_conf = make_default_agent_conf1() ;
+    agent1 = GridWorldAgent.new(agent_conf) ;
+    agent_conf = make_default_agent_conf2() ;
     agent2 = GridWorldAgent.new(agent_conf) ;
     result_array.push(agent1) ;
     result_array.push(agent2) ;
@@ -51,7 +52,7 @@ class TwoGridWorld
   #
   # === エージェントの設定
   #
-  def make_default_agent_conf
+  def make_default_agent_conf1
     conf = {} ;
     conf[:e] = 0.01 ;
     conf[:t] = 0.1 ;
@@ -62,9 +63,34 @@ class TwoGridWorld
     conf[:start_y] = 2 ;
     conf[:goal_x] = 2 ;
     conf[:goal_y] = 0 ;
+    conf[:max_x] = 2 ;
+    conf[:max_y] = 2 ;
+    conf[:min_x] = 0 ;
+    conf[:min_y] = 0 ;
     return conf ;
   end
 
+  #
+  # === エージェントの設定
+  #
+  def make_default_agent_conf2
+    conf = {} ;
+    conf[:e] = 0.01 ;
+    conf[:t] = 0.1 ;
+    conf[:average_reward] = 0.0 ;
+    conf[:id] = 0 ;
+    conf[:a] = 0.1 ;
+    conf[:start_x] = 0 ;
+    conf[:start_y] = 2 ;
+    conf[:goal_x] = 2 ;
+    conf[:goal_y] = 0 ;
+    conf[:max_x] = 2 ;
+    conf[:max_y] = 2 ;
+    conf[:min_x] = 0 ;
+    conf[:min_y] = 0 ;
+
+    return conf ;
+  end
   #
   # === ゲームを行うメソッド
   #

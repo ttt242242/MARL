@@ -16,12 +16,9 @@ include BasicTool
 # バンディット問題用のエージェント
 #
 class GridWorldAgent < BaseAgent
-  attr_accessor :x, :y, :e, :t, :is_goal, :goal_x, :goal_y, :last_dir, :previous_x, :previous_y, :ini_x, :ini_y, :cycle; #書き込み、参照可能
-  Max_x = 2 ;
-  Min_x = 0 ;
-  Max_y = 2 ;
-  Min_y = 0 ;
-  # attr_writer :test #書き込み可能
+  attr_accessor :x, :y, :e, :t, :is_goal, :goal_x, :goal_y, :last_dir, :previous_x, :previous_y, :ini_x, :ini_y, :cycle, 
+  :max_x, :max_y, :min_x, :min_y; #書き込み、参照可能
+    # attr_writer :test #書き込み可能
   # attr_reader :test #参照可能
   def initialize(conf = nil)
     conf = make_default_conf() if conf.nil? 
@@ -31,6 +28,10 @@ class GridWorldAgent < BaseAgent
     @y = conf[:start_y] ; 
     @ini_x = conf[:start_x] ;
     @ini_y = conf[:start_y] ; 
+    @max_x = conf[:max_x] ;
+    @min_x = conf[:min_x] ;
+    @max_y = conf[:max_y] ;
+    @min_y = conf[:min_y] ;
     create_q_table(@q_table) ;
     @e = conf[:e] ;
     @t = conf[:t] ;
@@ -39,8 +40,10 @@ class GridWorldAgent < BaseAgent
     @goal_y = conf[:goal_y] ; #エージェントがゴールにいるかどうか
     @last_dir = nil ;
     @cycle = 0 ;
+
   end
-  
+ 
+
   def make_default_conf
     conf = {} ;
     conf[:e] = 0.01 ;
@@ -79,10 +82,10 @@ class GridWorldAgent < BaseAgent
       while (y <= 2)
         q_table["#{x}_#{y}"] = Hash.new ;
 
-        q_table["#{x}_#{y}"]["right"] = 0.0  if x+1 <= Max_x
-        q_table["#{x}_#{y}"]["left"] = 0.0 if x-1 >= Min_x
-        q_table["#{x}_#{y}"]["up"] = 0.0 if y-1 >= Min_y
-        q_table["#{x}_#{y}"]["down"] = 0.0 if y+1 <= Max_y
+        q_table["#{x}_#{y}"]["right"] = 0.0  if x+1 <= @max_x
+        q_table["#{x}_#{y}"]["left"] = 0.0 if x-1 >= @min_x
+        q_table["#{x}_#{y}"]["up"] = 0.0 if y-1 >= @min_y
+        q_table["#{x}_#{y}"]["down"] = 0.0 if y+1 <= @max_y
 
         puts "#{x}_#{y}" ;
         y = y + 1 ;
