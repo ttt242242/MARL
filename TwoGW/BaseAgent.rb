@@ -21,7 +21,7 @@ class BaseAgent
     @id = agent_conf[:id] ;
     @a = agent_conf[:a] ;
     else
-      @average_reward = agent_conf[:average_reward] ;
+      @average_reward = 0.0 ;
       @id = agent_conf[:id] ;
       @a = agent_conf[:a] ;
     end

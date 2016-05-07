@@ -7,6 +7,7 @@ require "yaml"
 require "BaseAgent"
 require "GridWorldAgent"
 require 'rubyOkn/BasicTool'
+require 'rubyOkn/GenerateGraph'
 # require 'rubyOkn/StringTool'
 
 include BasicTool
@@ -30,7 +31,7 @@ class TwoGridWorld
 
   def make_default_conf
     conf = {} ;
-    conf[:game_num] = 1 ;
+    conf[:game_num] = 100 ;
     return conf ;
   end
 
@@ -69,16 +70,31 @@ class TwoGridWorld
   #
   def run()
     # 指定した回数の繰り返し
-    @game_num.times do  
-      i = 0
+    step_num_to_goal = [] ;
+    step_num_to_goal2 = [] ;
+    step = 0 ;
+    @game_num.times do |cycle|
+      step = 0  ;
       while(!check_all_agent_goal())  #全エージェントがゴールするまで繰り返し
         all_agent_act() ;   #全エージェントが行動選択
-        evaluate_all_agent() ;
+        evaluate_all_agent(cycle) ;
         # エージェント同士がぶつかった場合  
+        step += 1 ;
       end
       # 結果の出力 
-      # output_log() ;
+      # step_num_to_goal.push(step) ;
+      puts step ;
+      # step_num_to_goal.push(( @agents[0].average_reward + @agents[1].average_reward )/2.0) ;
+      step_num_to_goal.push(@agents[0].cycle) ;
+      step_num_to_goal2.push(@agents[1].cycle) ;
+      all_agent_move_ini_pos ;
     end
+    result_array = [] ;
+    result_array.push(step_num_to_goal) ;
+    result_array.push(step_num_to_goal2) ;
+    graph_conf = GenerateGraph.make_default_conf("test") ;
+    GenerateGraph.list_time_step(result_array,graph_conf) ;
+    makeYamlFile("test.yml", result_array) ;
   end
 
   #
@@ -98,13 +114,14 @@ class TwoGridWorld
   #
   # ===全エージェントの評価を行う
   #
-  def evaluate_all_agent
+  def evaluate_all_agent(cycle)
     # エージェント同士がぶつかった場合  
     if @agents[0].is_collision_agent(@agents[1])
       @agents.each do |agent|
         if agent.is_goal == false
           reward = -100
           agent.update_q(reward) ;
+          agent.calc_average_reward(reward, cycle) ;
           agent.x = agent.previous_x ;
           agent.y = agent.previous_y ;
         end
@@ -112,6 +129,7 @@ class TwoGridWorld
     else   #エージェント同士がぶつからなければ 
       @agents.each do |agent|
         if agent.is_goal == false
+          reward = nil ;
           if agent.is_goal_pos #エージェントがゴール状態にたどり着いたら
             reward = 100 ;
             agent.is_goal = true ;
@@ -119,6 +137,7 @@ class TwoGridWorld
             reward = -1 ;
           end
           agent.update_q(reward) ;
+          agent.calc_average_reward(reward, cycle) ;
         end
       end
     end
@@ -150,7 +169,6 @@ end
 if($0 == __FILE__) then
   test = TwoGridWorld.new()  ;
   test.run() ;
-  binding.pry ;
 end
 
 

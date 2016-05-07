@@ -16,7 +16,7 @@ include BasicTool
 # バンディット問題用のエージェント
 #
 class GridWorldAgent < BaseAgent
-  attr_accessor :x, :y, :e, :t, :is_goal, :goal_x, :goal_y, :last_dir, :previous_x, :previous_y; #書き込み、参照可能
+  attr_accessor :x, :y, :e, :t, :is_goal, :goal_x, :goal_y, :last_dir, :previous_x, :previous_y, :ini_x, :ini_y, :cycle; #書き込み、参照可能
   Max_x = 2 ;
   Min_x = 0 ;
   Max_y = 2 ;
@@ -29,6 +29,8 @@ class GridWorldAgent < BaseAgent
     @q_table = Hash.new ;
     @x = conf[:start_x] ; 
     @y = conf[:start_y] ; 
+    @ini_x = conf[:start_x] ;
+    @ini_y = conf[:start_y] ; 
     create_q_table(@q_table) ;
     @e = conf[:e] ;
     @t = conf[:t] ;
@@ -36,6 +38,7 @@ class GridWorldAgent < BaseAgent
     @goal_x = conf[:goal_x] ; #エージェントがゴールにいるかどうか
     @goal_y = conf[:goal_y] ; #エージェントがゴールにいるかどうか
     @last_dir = nil ;
+    @cycle = 0 ;
   end
   
   def make_default_conf
@@ -51,7 +54,14 @@ class GridWorldAgent < BaseAgent
     conf[:goal_y] = 0 ;
     return conf ;
   end
-   
+  
+  def move_ini_pos
+    @x = @ini_x ;
+    @y = @ini_y ;
+    @is_goal = false ; #エージェントがゴールにいるかどうか
+    @average_reward = 0.0 ;
+    @cycle = 0 ;
+  end 
   #
   # === Qテーブルの生成
   # @param conf hash 設定hash
@@ -104,6 +114,7 @@ class GridWorldAgent < BaseAgent
   def update_q(reward)
     begin
    @q_table["#{@previous_x}_#{@previous_y}"]["#{@last_dir}"] = @a*reward + (1-@a)*q_table["#{@previous_x}_#{@previous_y}"]["#{@last_dir}"]
+   @cycle += 1 ;
     rescue
       binding.pry ;
       end
