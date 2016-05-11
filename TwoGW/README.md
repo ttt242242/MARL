@@ -1,7 +1,6 @@
 # Two Grid-World
 
 
-### ナッシュQlearningの実験用
 
 
 ### 設計
