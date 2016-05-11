@@ -1,0 +1,50 @@
+--- !ruby/object:GridWorldAgent
+average_reward: 0.0
+id: 0
+a: 0.1
+q_table:
+  '0_0':
+    right: 0.0
+    down: 0.0
+  '0_1':
+    right: -0.1
+    up: 0.0
+    down: 0.0
+  '0_2':
+    right: -0.1
+    up: 0.0
+  '1_0':
+    right: -10.0
+    left: 10.0
+    down: 0.0
+  '1_1':
+    right: -0.1
+    left: -0.1
+    up: -0.1
+    down: 0.0
+  '1_2':
+    right: -0.1
+    left: -0.1
+    up: -0.1
+  '2_0':
+    left: -10.0
+    down: -0.8649148282327008
+  '2_1':
+    left: -9.1
+    up: -34.95747061880348
+    down: -0.9999999999999994
+  '2_2':
+    left: -8.29
+    up: -0.9999999999999994
+x: 2
+y: 2
+ini_x: 2
+ini_y: 2
+e: 0.01
+t: 0.1
+is_goal: false
+goal_x: 0
+goal_y: 0
+last_dir: left
+previous_x: 1
+previous_y: 0
