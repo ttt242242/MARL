@@ -17,7 +17,7 @@ include BasicTool
 #
 class GridWorldAgent < BaseAgent
   attr_accessor :x, :y, :e, :t, :is_goal, :goal_x, :goal_y, :last_dir, :previous_x, :previous_y, :ini_x, :ini_y, :cycle, 
-  :max_x, :max_y, :min_x, :min_y; #書き込み、参照可能
+  :max_x, :max_y, :min_x, :min_y, :sum_reward; #書き込み、参照可能
     # attr_writer :test #書き込み可能
   # attr_reader :test #参照可能
   def initialize(conf = nil)
@@ -40,6 +40,7 @@ class GridWorldAgent < BaseAgent
     @goal_y = conf[:goal_y] ; #エージェントがゴールにいるかどうか
     @last_dir = nil ;
     @cycle = 0 ;
+    @sum_reward= 0 ;
 
   end
  
@@ -63,6 +64,7 @@ class GridWorldAgent < BaseAgent
     @y = @ini_y ;
     @is_goal = false ; #エージェントがゴールにいるかどうか
     @average_reward = 0.0 ;
+    @sum_reward = 0.0 ;
     @cycle = 0 ;
   end 
   #
@@ -117,6 +119,7 @@ class GridWorldAgent < BaseAgent
   def update_q(reward)
     begin
    @q_table["#{@previous_x}_#{@previous_y}"]["#{@last_dir}"] = @a*reward + (1-@a)*q_table["#{@previous_x}_#{@previous_y}"]["#{@last_dir}"]
+   @sum_reward += reward ;
    @cycle += 1 ;
     rescue
       binding.pry ;

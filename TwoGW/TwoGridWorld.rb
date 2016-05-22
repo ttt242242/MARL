@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#j/usr/bin/ruby
 # -*- encoding: utf-8 -*-
 
 $LOAD_PATH.push(File::dirname($0)) ;
@@ -17,9 +17,7 @@ include BasicTool
 # == TwoGridWorldのメインクラス
 #
 class TwoGridWorld
-  attr_accessor :field , :goal_info,:agents, :game_num; #書き込み、参照可能
-  # attr_writer :test #書き込み可能
-  # attr_reader :test #参照可能
+  attr_accessor :agents, :game_num; #書き込み、参照可能
 
   def initialize(conf = nil)
     game_conf = make_default_conf() if conf.nil? 
@@ -31,7 +29,7 @@ class TwoGridWorld
 
   def make_default_conf
     conf = {} ;
-    conf[:game_num] = 100 ;
+    conf[:game_num] = 200 ;
     return conf ;
   end
 
@@ -61,7 +59,7 @@ class TwoGridWorld
     conf[:a] = 0.1 ;
     conf[:start_x] = 0 ;
     conf[:start_y] = 2 ;
-    conf[:goal_x] = 2 ;
+    conf[:goal_x] = 0 ;
     conf[:goal_y] = 0 ;
     conf[:max_x] = 2 ;
     conf[:max_y] = 2 ;
@@ -98,6 +96,8 @@ class TwoGridWorld
     # 指定した回数の繰り返し
     step_num_to_goal = [] ;
     step_num_to_goal2 = [] ;
+    average_reward = [] ;
+    average_reward2 = [] ;
     step = 0 ;
     @game_num.times do |cycle|
       step = 0  ;
@@ -112,15 +112,25 @@ class TwoGridWorld
       puts step ;
       # step_num_to_goal.push(( @agents[0].average_reward + @agents[1].average_reward )/2.0) ;
       step_num_to_goal.push(@agents[0].cycle) ;
+      average_reward.push(@agents[0].sum_reward) ;
       step_num_to_goal2.push(@agents[1].cycle) ;
+      average_reward2.push(@agents[1].sum_reward) ;
       all_agent_move_ini_pos ;
     end
     result_array = [] ;
     result_array.push(step_num_to_goal) ;
     result_array.push(step_num_to_goal2) ;
-    graph_conf = GenerateGraph.make_default_conf("test") ;
+    graph_conf = GenerateGraph.make_default_conf("step") ;
+
     GenerateGraph.list_time_step(result_array,graph_conf) ;
+
     makeYamlFile("test.yml", result_array) ;
+    result_array = [] ;
+    result_array.push(average_reward) ;
+    result_array.push(average_reward2) ;
+    graph_conf = GenerateGraph.make_default_conf("reward") ;
+    GenerateGraph.list_time_step(result_array,graph_conf) ;
+    makeYamlFile("reward.yml", result_array) ;
   end
 
   #
